@@ -41,20 +41,33 @@ def _list_model_filenames() -> list[str]:
     return list(_FALLBACK_MODELS)
 
 
-def _resolve_models_dir() -> str:
+def _model_dir_candidates() -> list[str]:
     try:
         import folder_paths  # provided by ComfyUI
 
-        paths = folder_paths.get_folder_paths("audio_separator")
-        if paths:
-            resolved = paths[0]
-            os.makedirs(resolved, exist_ok=True)
-            return resolved
+        registered = folder_paths.get_folder_paths("audio_separator") or []
+        if registered:
+            return list(registered)
     except Exception:
         pass
-    fallback = os.path.expanduser("~/.audio-separator/models")
-    os.makedirs(fallback, exist_ok=True)
-    return fallback
+    return [os.path.expanduser("~/.audio-separator/models")]
+
+
+def _resolve_models_dir(model_filename: str | None = None) -> str:
+    """Pick the directory audio-separator should load/download this model from.
+
+    If the model file already exists in any registered folder (e.g. one the
+    user added via extra_model_paths.yaml), use that folder. Otherwise use
+    the first registered folder — which is where a fresh download will land.
+    """
+    candidates = _model_dir_candidates()
+    if model_filename:
+        for path in candidates:
+            if os.path.isfile(os.path.join(path, model_filename)):
+                return path
+    first = candidates[0]
+    os.makedirs(first, exist_ok=True)
+    return first
 
 
 class AudioSeparator:
@@ -96,7 +109,7 @@ class AudioSeparator:
             _save_wav(str(input_path), waveform, sample_rate)
 
             separator = Separator(
-                model_file_dir=_resolve_models_dir(),
+                model_file_dir=_resolve_models_dir(model_filename),
                 output_dir=str(tmp_dir),
                 output_format=output_format.upper(),
             )

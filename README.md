@@ -106,6 +106,18 @@ Stem semantics depend on the model; the names are deliberately generic. Consult 
 
 Models are downloaded on demand to `ComfyUI/models/audio_separator/` and reused thereafter. Outside a ComfyUI environment (e.g. running the smoke test standalone), the default cache location is `~/.audio-separator/models/`.
 
+#### Using a shared models folder (`extra_model_paths.yaml`)
+
+If you already have a models folder mounted elsewhere (shared between UIs, on a separate drive, etc.), point ComfyUI at it via `extra_model_paths.yaml`:
+
+```yaml
+my-setup:
+  base_path: /mnt/models
+  audio_separator: audio_separator/
+```
+
+The node searches every registered `audio_separator` folder for the selected model. If the file is already present in any of them, that folder is used directly (no re-download). If it isn't present anywhere, the first registered folder is used for the fresh download — entries in `extra_model_paths.yaml` load before custom nodes, so a configured external path takes precedence over the default `ComfyUI/models/audio_separator/`.
+
 ### Typical wiring
 
 ```
