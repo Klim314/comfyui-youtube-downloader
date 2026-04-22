@@ -1,12 +1,17 @@
 # ComfyUI Video Downloader
 
-A ComfyUI custom node that downloads videos or audio tracks via [yt-dlp](https://github.com/yt-dlp/yt-dlp). Supports cookie-based authentication so you can use Premium accounts for higher-quality streams.
+ComfyUI custom nodes for downloading video/audio via [yt-dlp](https://github.com/yt-dlp/yt-dlp) and feeding the result into the graph. Supports cookie-based authentication so you can use Premium accounts.
+
+Ships two nodes:
+
+- **Video Downloader (yt-dlp)** — fetch a URL to disk, output the file path.
+- **Load Audio (from path)** — read a STRING path into ComfyUI's `AUDIO` type, so `audio_only` downloads compose directly with audio-consuming nodes.
 
 ## Features
 
 - Download video (merged to mp4) or audio only (mp3/m4a/opus/wav/flac/aac/vorbis)
 - Optional `cookies.txt` for Premium / age-gated / members-only content
-- Outputs a file path string — pipe into [VideoHelperSuite](https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite) `LoadVideo` for frame extraction
+- Path-based outputs that compose with [VideoHelperSuite](https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite) (`VHS_LoadVideo`) for video, and with the bundled `Load Audio (from path)` node for audio-only flows
 - Works with any site yt-dlp supports (YouTube, Vimeo, Twitter/X, etc.)
 
 ## Install
@@ -32,9 +37,11 @@ uv sync
 
 ## Usage
 
-Add the **Video Downloader (yt-dlp)** node (category: `video/download`).
+### Video Downloader (yt-dlp)
 
-### Inputs
+Category: `video/download`.
+
+#### Inputs
 
 | Input | Type | Notes |
 |---|---|---|
@@ -46,11 +53,27 @@ Add the **Video Downloader (yt-dlp)** node (category: `video/download`).
 | `format_override` | STRING | Raw yt-dlp `-f` string; overrides mode default when set |
 | `cookies_file` | STRING | Path to a `cookies.txt` (Netscape format) |
 
-### Outputs
+#### Outputs
 
 - `file_path` (STRING) — absolute path to the downloaded file
 - `title` (STRING)
 - `duration` (FLOAT) — seconds
+
+### Load Audio (from path)
+
+Category: `audio`. Reads an audio file at a given path and returns ComfyUI's standard `AUDIO` type — a dict of `{"waveform": Tensor[1, channels, time], "sample_rate": int}`. Sample rate is preserved as-is; no resampling.
+
+- **Input**: `audio_path` (STRING)
+- **Output**: `AUDIO`
+
+Uses `torchaudio.load()` under the hood, which comes with any standard ComfyUI environment.
+
+### Typical wiring
+
+```
+Video Downloader (mode=video)       ──►  VHS_LoadVideo ──► IMAGE + AUDIO
+Video Downloader (mode=audio_only)  ──►  Load Audio (from path) ──► AUDIO
+```
 
 ## Using Premium / authenticated downloads
 
