@@ -22,8 +22,8 @@ Ships four nodes:
 
 ```bash
 cd ComfyUI/custom_nodes
-git clone <this-repo> comfyui_video_downloader
-cd comfyui_video_downloader
+git clone git@github.com:Klim314/comfyui-karaoke.git
+cd comfyui-karaoke
 pip install -r requirements.txt
 ```
 
