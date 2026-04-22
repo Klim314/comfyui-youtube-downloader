@@ -101,6 +101,7 @@ Category: `karaoke/separation`. Runs a source-separation model on an incoming `A
 
 - `primary_stem` (AUDIO) — first stem the model produces (e.g. Vocals for a vocal model)
 - `secondary_stem` (AUDIO) — second stem (e.g. Instrumental)
+- `model` (STRING) — the selected `model_filename`, passed through so downstream save nodes can compose filenames like `vocals_<model>.wav`
 
 Stem semantics depend on the model; the names are deliberately generic. Consult the model's documentation to know which stem is which.
 

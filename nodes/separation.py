@@ -89,8 +89,8 @@ class AudioSeparator:
             },
         }
 
-    RETURN_TYPES = ("AUDIO", "AUDIO")
-    RETURN_NAMES = ("primary_stem", "secondary_stem")
+    RETURN_TYPES = ("AUDIO", "AUDIO", "STRING")
+    RETURN_NAMES = ("primary_stem", "secondary_stem", "model")
     FUNCTION = "separate"
     CATEGORY = "karaoke/separation"
 
@@ -124,7 +124,11 @@ class AudioSeparator:
             primary_path = _resolve_stem_path(stem_paths[0], tmp_dir)
             secondary_path = _resolve_stem_path(stem_paths[1], tmp_dir)
 
-            return (_load_audio_dict(primary_path), _load_audio_dict(secondary_path))
+            return (
+                _load_audio_dict(primary_path),
+                _load_audio_dict(secondary_path),
+                model_filename,
+            )
         finally:
             shutil.rmtree(tmp_dir, ignore_errors=True)
 
